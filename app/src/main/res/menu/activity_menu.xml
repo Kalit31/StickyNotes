@@ -5,11 +5,13 @@
         <item
             android:id="@+id/view_note"
             android:title="View Notes"
+            android:icon="@drawable/ic_event_note_black_24dp"
             />
 
         <item
             android:id="@+id/add_note"
             android:title="Add Note"
+            android:icon="@drawable/ic_note_add_black_24dp"
             />
     </group>
 

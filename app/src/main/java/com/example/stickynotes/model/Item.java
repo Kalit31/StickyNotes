@@ -8,14 +8,17 @@ public class Item {
             this.note = note;
         }
 
-        public Item() {
+        public Item()
+        {
         }
 
-        public String getNote() {
+        public String getNote()
+        {
             return note;
         }
 
-        public void setNote(String note) {
+        public void setNote(String note)
+        {
             this.note = note;
         }
 }

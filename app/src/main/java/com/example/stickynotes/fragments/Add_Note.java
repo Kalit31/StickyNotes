@@ -7,67 +7,75 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.example.stickynotes.DatabaseHelper;
 import com.example.stickynotes.R;
 
 
 public class Add_Note extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
+    DatabaseHelper myDB;
+    EditText editText;
+    Button save;
 
     public Add_Note()
     {
 
     }
-
-    public static Add_Note newInstance(String param1, String param2) {
+    public static Add_Note newInstance() {
         Add_Note fragment = new Add_Note();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
     }
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
-    }
+     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add__note, container, false);
+    View view=inflater.inflate(R.layout.fragment_add__note, container, false);
+    editText=view.findViewById(R.id.et);
+    save=view.findViewById(R.id.save);
+       save.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               String newEntry= editText.getText().toString();
+               if(newEntry.length() != 0)
+               {
+                   Toast.makeText(getActivity(),"Reached here",Toast.LENGTH_SHORT).show();
+                   AddData(newEntry);
+                   editText.setText("");
+
+               }
+               else
+                   Toast.makeText(getActivity(),"Please enter something!",Toast.LENGTH_SHORT).show();
+           }
+       });
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    public void AddData(String newEntry)
+    {
+        boolean insertData =myDB.addData(newEntry);
+        if(insertData==true)
+            Toast.makeText(getContext(),"Note Added",Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getContext(),"Something went wrong!",Toast.LENGTH_SHORT).show();
     }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

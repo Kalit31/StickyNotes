@@ -18,13 +18,13 @@ import com.example.stickynotes.fragments.View_Note;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Activity context;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
-
         navigationView=findViewById(R.id.nav_view);
         context=this;
         navigationView.setNavigationItemSelectedListener(this);
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ft.commit();
                 break;
             case R.id.add_note:
-                Toast.makeText(context,"Send",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"Add Notes",Toast.LENGTH_SHORT).show();
                 ft.replace(R.id.your_placeholder, new Add_Note());
                 ft.commit();
                 break;
