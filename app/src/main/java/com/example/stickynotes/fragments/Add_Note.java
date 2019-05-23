@@ -1,6 +1,7 @@
 package com.example.stickynotes.fragments;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,6 +36,7 @@ public class Add_Note extends Fragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        myDB=new DatabaseHelper(getActivity());
      }
 
     @Override
@@ -43,37 +45,49 @@ public class Add_Note extends Fragment {
     View view=inflater.inflate(R.layout.fragment_add__note, container, false);
     editText=view.findViewById(R.id.et);
     save=view.findViewById(R.id.save);
+
        save.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
+               int t=0;
                String newEntry= editText.getText().toString();
-               if(newEntry.length() != 0)
+               if(newEntry.equals(""))
                {
-                   Toast.makeText(getActivity(),"Reached here",Toast.LENGTH_SHORT).show();
-                   AddData(newEntry);
-                   editText.setText("");
-
-               }
-               else
                    Toast.makeText(getActivity(),"Please enter something!",Toast.LENGTH_SHORT).show();
+               }
+               else {
+                   Cursor data = myDB.getListContents();
+                    while(data.moveToNext())
+                    {
+                        if(newEntry.equals(data.getString(1)))
+                        {
+                            t=1;
+                            Toast.makeText(getActivity(),"Note already added",Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
+                    if(t==0)
+                       adData(newEntry);
+                   editText.setText("");
+               }
            }
        });
         return view;
     }
 
-    public void AddData(String newEntry)
+    public void adData(String newEntry)
     {
-        boolean insertData =myDB.addData(newEntry);
+      boolean insertData = myDB.addData(newEntry);
         if(insertData==true)
             Toast.makeText(getContext(),"Note Added",Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(getContext(),"Something went wrong!",Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
-
     @Override
     public void onDetach() {
         super.onDetach();

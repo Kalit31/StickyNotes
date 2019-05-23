@@ -1,9 +1,13 @@
 package com.example.stickynotes.fragments;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +51,7 @@ public class View_Note extends Fragment {
                              Bundle savedInstanceState)
     {
         View v = inflater.inflate(R.layout.fragment_view__note, container, false);
+
         final ArrayList<Item> item =new ArrayList<Item>();
                ListView listView =v.findViewById(R.id.list_view);
         ListAdapter adapter=new ListAdapter(item,getActivity());
@@ -63,26 +68,48 @@ public class View_Note extends Fragment {
                 item.add(new Item(data.getString(1)));
             }
         }
-        item.add(new Item("Kalit"));
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(),item.get(position).getNote(),Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder a_builder =new AlertDialog.Builder(getActivity());
+                a_builder.setMessage(item.get(position).getNote()).setCancelable(false).setPositiveButton("DELETE", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                            Integer deletedRows=myDB.deleteData(item.get(position).getNote());
+                            if(deletedRows > 0) {
+
+                            }
+                            else
+                                Toast.makeText(getContext(),"Something went wrong",Toast.LENGTH_SHORT).show();
+                    }
+                }).setNegativeButton("CLOSE", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog alertDialog=a_builder.create();
+                alertDialog.setTitle("Notes");
+                alertDialog.show();
             }
         });
         return v;
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Context context)
+    {
         super.onAttach(context);
-
     }
 
     @Override
-    public void onDetach() {
+    public void onDetach()
+    {
         super.onDetach();
-
     }
+
 }
