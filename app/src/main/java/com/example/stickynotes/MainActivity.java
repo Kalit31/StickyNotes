@@ -1,6 +1,8 @@
 package com.example.stickynotes;
 
 import android.app.Activity;
+import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -15,16 +17,19 @@ import android.widget.Toast;
 
 import androidx.room.Room;
 
+import com.example.stickynotes.databinding.ActivityMainBinding;
 import com.example.stickynotes.db.NotesAppDatabase;
 import com.example.stickynotes.fragments.AddNote;
-import com.example.stickynotes.fragments.View_Note;
+import com.example.stickynotes.fragments.ViewNote;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Activity context;
+    ImageView hamburger;
     public NotesAppDatabase notesAppDatabase;
+    private ActivityMainBinding activityMainBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,18 +38,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         notesAppDatabase = Room.databaseBuilder(getApplicationContext(),NotesAppDatabase.class,"NotesDB").allowMainThreadQueries().build();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.your_placeholder, new View_Note());
+        ft.replace(R.id.your_placeholder, new ViewNote());
         ft.commit();
-        drawerLayout=findViewById(R.id.drawer);
-        ImageView hamburger=findViewById(R.id.hamburger);
+        activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
 
-        hamburger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
-        navigationView=findViewById(R.id.nav_view);
+        drawerLayout = activityMainBinding.drawer;
+
+        hamburger = activityMainBinding.contentMain.hamburger;
+
+        navigationView=activityMainBinding.navView;
         context=this;
         navigationView.setNavigationItemSelectedListener(this);
     }
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             case R.id.view_note:
                 Toast.makeText(context,"View Notes", Toast.LENGTH_SHORT).show();
-                ft.replace(R.id.your_placeholder, new View_Note());
+                ft.replace(R.id.your_placeholder, new ViewNote());
                 ft.commit();
                 break;
             case R.id.add_note:
@@ -68,5 +70,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
         return true;
+    }
+    public class HamburgerClickHandler{
+        Context context;
+
+        public HamburgerClickHandler(Context context) {
+            this.context = context;
+        }
+
+        public void HamClicked(View view){
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
     }
 }

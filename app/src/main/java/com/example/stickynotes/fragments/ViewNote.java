@@ -1,8 +1,10 @@
 package com.example.stickynotes.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,7 @@ import androidx.room.Room;
 import com.example.stickynotes.R;
 import com.example.stickynotes.adapters.NoteAdapter;
 import com.example.stickynotes.adapters.RecyclerViewClickListener;
+import com.example.stickynotes.databinding.FragmentViewnoteBinding;
 import com.example.stickynotes.db.NotesAppDatabase;
 import com.example.stickynotes.db.entity.Note;
 
@@ -24,16 +27,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class View_Note extends Fragment implements RecyclerViewClickListener {
+public class ViewNote extends Fragment implements RecyclerViewClickListener {
 
    NotesAppDatabase notesAppDatabase;
    List<Note> notes;
    NoteAdapter noteAdapter;
+   private FragmentViewnoteBinding fragmentViewnoteBinding;
 
-    public View_Note(){}
 
-    public static View_Note newInstance() {
-        View_Note fragment = new View_Note();
+    public ViewNote(){}
+
+    public static ViewNote newInstance() {
+        ViewNote fragment = new ViewNote();
         return fragment;
     }
 
@@ -46,10 +51,10 @@ public class View_Note extends Fragment implements RecyclerViewClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.fragment_view__note, container, false);
+        View v = inflater.inflate(R.layout.fragment_viewnote, container, false);
+        fragmentViewnoteBinding = DataBindingUtil.setContentView((Activity) getContext(),R.layout.fragment_viewnote);
 
-        final ArrayList<Note> notesList = new ArrayList<>();
-        RecyclerView recyclerView =v.findViewById(R.id.list_view);
+        RecyclerView recyclerView =fragmentViewnoteBinding.listView;
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         noteAdapter = new NoteAdapter(this);

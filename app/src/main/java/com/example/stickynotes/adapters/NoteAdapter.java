@@ -1,5 +1,6 @@
 package com.example.stickynotes.adapters;
 
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.stickynotes.R;
+import com.example.stickynotes.databinding.ListLayoutBinding;
 import com.example.stickynotes.db.entity.Note;
 
 import java.util.ArrayList;
@@ -25,16 +27,17 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-
-        View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_layout,viewGroup,false);
-        return new NoteViewHolder(itemView);
+//LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_layout,viewGroup,false)
+     ListLayoutBinding listLayoutBinding = DataBindingUtil.
+             inflate(LayoutInflater.from(viewGroup.getContext()),R.layout.list_layout,viewGroup,false);
+     return new NoteViewHolder(listLayoutBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder noteViewHolder, int i) {
 
         Note n = notes.get(i);
-        noteViewHolder.note.setText(n.getDescription());
+        noteViewHolder.listLayoutBinding.setNote(n);
     }
 
     @Override
@@ -54,11 +57,10 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
     public class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView note;
-        public NoteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            note = itemView.findViewById(R.id.note);
-            itemView.setOnClickListener(this);
+        private ListLayoutBinding listLayoutBinding;
+        public NoteViewHolder(ListLayoutBinding listLayoutBinding) {
+            super(listLayoutBinding.getRoot());
+            this.listLayoutBinding = listLayoutBinding;
         }
 
         @Override
