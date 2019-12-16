@@ -16,8 +16,7 @@ import android.widget.Toast;
 import androidx.room.Room;
 
 import com.example.stickynotes.db.NotesAppDatabase;
-import com.example.stickynotes.db.entity.Note;
-import com.example.stickynotes.fragments.Add_Note;
+import com.example.stickynotes.fragments.AddNote;
 import com.example.stickynotes.fragments.View_Note;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.add_note:
                 Toast.makeText(context,"Add Notes",Toast.LENGTH_SHORT).show();
-                ft.replace(R.id.your_placeholder, new Add_Note());
+                ft.replace(R.id.your_placeholder, new AddNote());
                 ft.commit();
                 break;
         }
