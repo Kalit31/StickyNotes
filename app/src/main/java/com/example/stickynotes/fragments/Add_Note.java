@@ -1,8 +1,6 @@
 package com.example.stickynotes.fragments;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,33 +9,34 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.example.stickynotes.DatabaseHelper;
+import androidx.room.Room;
 import com.example.stickynotes.R;
+import com.example.stickynotes.db.NotesAppDatabase;
+import com.example.stickynotes.db.entity.Note;
+
+import java.util.Iterator;
+import java.util.List;
 
 
 public class Add_Note extends Fragment {
 
-    DatabaseHelper myDB;
+
     EditText editText;
     Button save;
+    NotesAppDatabase notesAppDatabase;
 
-    public Add_Note()
-    {
+    public Add_Note(){}
 
-    }
     public static Add_Note newInstance() {
         Add_Note fragment = new Add_Note();
         return fragment;
     }
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        myDB=new DatabaseHelper(getActivity());
-     }
+        notesAppDatabase = Room.databaseBuilder(getContext(),NotesAppDatabase.class,"NotesDB").allowMainThreadQueries().build();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,16 +55,18 @@ public class Add_Note extends Fragment {
                    Toast.makeText(getActivity(),"Please enter something!",Toast.LENGTH_SHORT).show();
                }
                else {
-                   Cursor data = myDB.getListContents();
-                    while(data.moveToNext())
-                    {
-                        if(newEntry.equals(data.getString(1)))
-                        {
-                            t=1;
-                            Toast.makeText(getActivity(),"Note already added",Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    }
+                   List<Note> notes = notesAppDatabase.getNoteDAO().getNotes();
+                   Iterator<Note> itr = notes.iterator();
+                   while(itr.hasNext())
+                   {
+                       Note n = itr.next();
+                       if(n.getDescription().equals(newEntry))
+                       {
+                           t=1;
+                           Toast.makeText(getActivity(),"Note already added",Toast.LENGTH_SHORT).show();
+                           break;
+                       }
+                   }
                     if(t==0)
                        adData(newEntry);
                    editText.setText("");
@@ -75,21 +76,17 @@ public class Add_Note extends Fragment {
         return view;
     }
 
-    public void adData(String newEntry)
-    {
-      boolean insertData = myDB.addData(newEntry);
-        if(insertData==true)
-            Toast.makeText(getContext(),"Note Added",Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(getContext(),"Something went wrong!",Toast.LENGTH_SHORT).show();
+    public void adData(String newEntry){
+        long id = notesAppDatabase.getNoteDAO().addNote(new Note(newEntry,0));
+        Toast.makeText(getContext(),"Note Added",Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(Context context){
         super.onAttach(context);
     }
     @Override
-    public void onDetach() {
+    public void onDetach(){
         super.onDetach();
     }
 }

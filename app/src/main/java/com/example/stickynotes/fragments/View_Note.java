@@ -1,38 +1,35 @@
 package com.example.stickynotes.fragments;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TabHost;
 import android.widget.Toast;
 
-import com.example.stickynotes.DatabaseHelper;
+import androidx.room.Room;
+
 import com.example.stickynotes.R;
 import com.example.stickynotes.adapters.ListAdapter;
-import com.example.stickynotes.model.Item;
+import com.example.stickynotes.db.NotesAppDatabase;
+import com.example.stickynotes.db.entity.Note;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class View_Note extends Fragment {
 
-   DatabaseHelper myDB;
+   NotesAppDatabase notesAppDatabase;
 
-    public View_Note()
-    {
-        // Required empty public constructor
-    }
+    public View_Note(){}
 
     public static View_Note newInstance() {
         View_Note fragment = new View_Note();
@@ -40,49 +37,50 @@ public class View_Note extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
+        notesAppDatabase = Room.databaseBuilder(getContext(),NotesAppDatabase.class,"NotesDB").allowMainThreadQueries().build();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_view__note, container, false);
 
-        final ArrayList<Item> item =new ArrayList<Item>();
-               ListView listView =v.findViewById(R.id.list_view);
-        ListAdapter adapter=new ListAdapter(item,getActivity());
-        myDB=new DatabaseHelper(getActivity());
-        Cursor data = myDB.getListContents();
-        if(data.getCount()==0)
+        final ArrayList<Note> notesList = new ArrayList<>();
+        ListView listView =v.findViewById(R.id.list_view);
+
+        Log.d("test","here1");
+        List<Note> notes =  notesAppDatabase.getNoteDAO().getNotes();
+        if(notes.isEmpty())
         {
             Toast.makeText(getActivity(),"No Notes!!", Toast.LENGTH_SHORT).show();
+            Log.d("test","here2");
         }
         else
         {
-            while(data.moveToNext())
+            Iterator<Note> itr = notes.iterator();
+            Log.d("test","here3");
+            while(itr.hasNext())
             {
-                item.add(new Item(data.getString(1)));
+                Note n = itr.next();
+                notesList.add(n);
             }
         }
+
+        ListAdapter adapter=new ListAdapter(notesList,getActivity());
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
                 AlertDialog.Builder a_builder =new AlertDialog.Builder(getActivity());
-                a_builder.setMessage(item.get(position).getNote()).setCancelable(false).setPositiveButton("DELETE", new DialogInterface.OnClickListener()
+                a_builder.setMessage(notesList.get(position).getDescription()).setCancelable(false).setPositiveButton("DELETE", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                            Integer deletedRows=myDB.deleteData(item.get(position).getNote());
-                            if(deletedRows > 0) {
 
-                            }
-                            else
-                                Toast.makeText(getContext(),"Something went wrong",Toast.LENGTH_SHORT).show();
+                            notesAppDatabase.getNoteDAO().deleteNote(notesList.get(position));
                     }
                 }).setNegativeButton("CLOSE", new DialogInterface.OnClickListener()
                 {
@@ -101,15 +99,12 @@ public class View_Note extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context)
-    {
+    public void onAttach(Context context){
         super.onAttach(context);
     }
 
     @Override
-    public void onDetach()
-    {
+    public void onDetach(){
         super.onDetach();
     }
-
 }

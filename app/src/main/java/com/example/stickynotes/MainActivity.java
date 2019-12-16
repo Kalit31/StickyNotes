@@ -13,6 +13,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.room.Room;
+
+import com.example.stickynotes.db.NotesAppDatabase;
+import com.example.stickynotes.db.entity.Note;
 import com.example.stickynotes.fragments.Add_Note;
 import com.example.stickynotes.fragments.View_Note;
 
@@ -21,12 +25,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     NavigationView navigationView;
     Activity context;
+    public NotesAppDatabase notesAppDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        notesAppDatabase = Room.databaseBuilder(getApplicationContext(),NotesAppDatabase.class,"NotesDB").allowMainThreadQueries().build();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.your_placeholder, new View_Note());
         ft.commit();

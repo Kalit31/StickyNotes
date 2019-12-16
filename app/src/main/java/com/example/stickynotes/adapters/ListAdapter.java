@@ -10,17 +10,17 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.stickynotes.R;
-import com.example.stickynotes.model.Item;
+import com.example.stickynotes.db.entity.Note;
 
 import java.util.List;
 
 
-public class ListAdapter extends ArrayAdapter<Item>
+public class ListAdapter extends ArrayAdapter<Note>
     {
-      private  List<Item> items;
+      private  List<Note> items;
       private Activity context;
 
-        public ListAdapter(List<Item> items, Activity context)
+        public ListAdapter(List<Note> items, Activity context)
         {
             super(context, R.layout.list_layout,items);
             this.items = items;
@@ -33,7 +33,7 @@ public class ListAdapter extends ArrayAdapter<Item>
             LayoutInflater inflater = context.getLayoutInflater();
             View row = inflater.inflate(R.layout.list_layout, parent, false);
             TextView note = row.findViewById(R.id.note);
-            note.setText(items.get(position).getNote());
+            note.setText(items.get(position).getDescription());
             return row;
         }
     }
