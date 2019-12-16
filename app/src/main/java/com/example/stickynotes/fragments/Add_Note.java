@@ -86,7 +86,7 @@ public class Add_Note extends Fragment {
         super.onAttach(context);
     }
     @Override
-    public void onDetach(){
+    public void onDetach() {
         super.onDetach();
     }
 }

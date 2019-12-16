@@ -3,31 +3,32 @@ package com.example.stickynotes.fragments;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.room.Room;
 
 import com.example.stickynotes.R;
-import com.example.stickynotes.adapters.ListAdapter;
+import com.example.stickynotes.adapters.NoteAdapter;
+import com.example.stickynotes.adapters.RecyclerViewClickListener;
 import com.example.stickynotes.db.NotesAppDatabase;
 import com.example.stickynotes.db.entity.Note;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
-public class View_Note extends Fragment {
+public class View_Note extends Fragment implements RecyclerViewClickListener {
 
    NotesAppDatabase notesAppDatabase;
+   List<Note> notes;
+   NoteAdapter noteAdapter;
 
     public View_Note(){}
 
@@ -39,7 +40,7 @@ public class View_Note extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        notesAppDatabase = Room.databaseBuilder(getContext(),NotesAppDatabase.class,"NotesDB").allowMainThreadQueries().build();
+        notesAppDatabase = Room.databaseBuilder(getContext(),NotesAppDatabase.class,"NotesDB").build();
     }
 
     @Override
@@ -48,53 +49,13 @@ public class View_Note extends Fragment {
         View v = inflater.inflate(R.layout.fragment_view__note, container, false);
 
         final ArrayList<Note> notesList = new ArrayList<>();
-        ListView listView =v.findViewById(R.id.list_view);
+        RecyclerView recyclerView =v.findViewById(R.id.list_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        noteAdapter = new NoteAdapter(this);
+        recyclerView.setAdapter(noteAdapter);
 
-        Log.d("test","here1");
-        List<Note> notes =  notesAppDatabase.getNoteDAO().getNotes();
-        if(notes.isEmpty())
-        {
-            Toast.makeText(getActivity(),"No Notes!!", Toast.LENGTH_SHORT).show();
-            Log.d("test","here2");
-        }
-        else
-        {
-            Iterator<Note> itr = notes.iterator();
-            Log.d("test","here3");
-            while(itr.hasNext())
-            {
-                Note n = itr.next();
-                notesList.add(n);
-            }
-        }
-
-        ListAdapter adapter=new ListAdapter(notesList,getActivity());
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
-                AlertDialog.Builder a_builder =new AlertDialog.Builder(getActivity());
-                a_builder.setMessage(notesList.get(position).getDescription()).setCancelable(false).setPositiveButton("DELETE", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                            notesAppDatabase.getNoteDAO().deleteNote(notesList.get(position));
-                    }
-                }).setNegativeButton("CLOSE", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.cancel();
-                    }
-                });
-                AlertDialog alertDialog=a_builder.create();
-                alertDialog.setTitle("Notes");
-                alertDialog.show();
-            }
-        });
+        loadNotes();
         return v;
     }
 
@@ -106,5 +67,66 @@ public class View_Note extends Fragment {
     @Override
     public void onDetach(){
         super.onDetach();
+    }
+
+    void loadNotes(){
+        new GetAllNotes().execute();
+    }
+
+    @Override
+    public void recyclerViewListClicked(View v, final int pos) {
+        AlertDialog.Builder a_builder =new AlertDialog.Builder(getActivity());
+        a_builder.setMessage(notes.get(pos).getDescription()).setCancelable(false).setPositiveButton("DELETE", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                deleteNote(notes.get(pos));
+            }
+        }).setNegativeButton("CLOSE", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog=a_builder.create();
+        alertDialog.setTitle("Notes");
+        alertDialog.show();
+    }
+
+    private class GetAllNotes extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            notes = (List<Note>)notesAppDatabase.getNoteDAO().getNotes();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            noteAdapter.setNotes((ArrayList<Note>) notes);
+        }
+    }
+
+    private void deleteNote(Note n){
+        new DeleteNote().execute(n);
+    }
+
+    private class DeleteNote extends AsyncTask<Note,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Note... notes) {
+            notesAppDatabase.getNoteDAO().deleteNote(notes[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            loadNotes();
+        }
     }
 }
